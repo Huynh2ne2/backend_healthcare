@@ -17,33 +17,58 @@ let myCustomMethod = async (ctx) => {
     }
 }
 
+// let sendSimpleEmail = async (dataSend) => {
+//     let transporter = nodemailer.createTransport({
+//         host: "smtp.gmail.com",
+//         port: 587,
+//         secure: false,
+//         auth: {
+//             type: 'custom',
+//             method: 'MY-CUSTOM-METHOD',
+//             user: process.env.EMAIL_APP,
+//             pass: process.env.EMAIL_APP_PASSWORD,
+//         },
+//         customAuth: {
+//             'MY-CUSTOM-METHOD': myCustomMethod
+//         },
+//         tls: {
+//             rejectUnauthorized: false,
+//         },
+//     });
+
+//     let info = await transporter.sendMail({
+//         from: `"Healthcare Team" <${process.env.EMAIL_APP}>`,
+//         to: dataSend.receiverEmail,
+//         subject: "Thông tin đặt lịch khám bệnh",
+//         html: getBodyHTMLEmail(dataSend),
+//     });
+
+// }
+
+
 let sendSimpleEmail = async (dataSend) => {
-    let transporter = nodemailer.createTransport({
-        host: "smtp.gmail.com",
-        port: 587,
-        secure: false,
-        auth: {
-            type: 'custom',
-            method: 'MY-CUSTOM-METHOD',
-            user: process.env.EMAIL_APP,
-            pass: process.env.EMAIL_APP_PASSWORD,
-        },
-        customAuth: {
-            'MY-CUSTOM-METHOD': myCustomMethod
-        },
-        tls: {
-            rejectUnauthorized: false,
-        },
-    });
+    try {
+        let transporter = nodemailer.createTransport({
+            service: "gmail",
+            auth: {
+                user: process.env.EMAIL_APP,
+                pass: process.env.EMAIL_APP_PASSWORD,
+            },
+        });
 
-    let info = await transporter.sendMail({
-        from: `"Healthcare Team" <${process.env.EMAIL_APP}>`,
-        to: dataSend.receiverEmail,
-        subject: "Thông tin đặt lịch khám bệnh",
-        html: getBodyHTMLEmail(dataSend),
-    });
+        let info = await transporter.sendMail({
+            from: `"Healthcare Team" <${process.env.EMAIL_APP}>`,
+            to: dataSend.receiverEmail,
+            subject: "Thông tin đặt lịch khám bệnh",
+            html: getBodyHTMLEmail(dataSend),
+        });
 
-}
+        return info;
+    } catch (e) {
+        console.log("EMAIL ERROR:", e.message);
+        throw e;
+    }
+};
 
 let getBodyHTMLEmail = (dataSend) => {
     let result = '';
