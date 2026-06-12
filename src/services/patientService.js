@@ -34,14 +34,14 @@ let postBookAppointment = (data) => {
                     language: data.language,
                     redirectLink: buildUrlEmail(data.doctorId, token)
                 })
-
+                console.log("step 1");
                 let user = await db.Users.findOrCreate({
                     where: { email: data.email },
                     defaults: {
                         email: data.email,
                         // genderId:"M",
                         roleId: 'R3',
-                        positionId:"P5",
+                        positionId: "P5",
                         gender: data.selectedGender,
                         address: data.address,
                         firstName: data.fullName
@@ -50,6 +50,7 @@ let postBookAppointment = (data) => {
 
 
                 if (user && user[0]) {
+                    console.log("step 2");
                     await db.Bookings.findOrCreate({
                         where: { patientId: user[0].id },
                         defaults: {
@@ -63,7 +64,7 @@ let postBookAppointment = (data) => {
 
                     })
                 }
-
+                console.log("step 3");
                 resolve({
                     data: user,
                     errCode: 0,
