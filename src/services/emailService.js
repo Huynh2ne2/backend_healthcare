@@ -549,7 +549,7 @@ let sendSimpleEmail = async (dataSend) => {
             html: getBodyHTMLEmail(dataSend),
         });
 
-        return info;
+        return true;
     } catch (e) {
         console.log("EMAIL ERROR:", e.message);
         throw e;
