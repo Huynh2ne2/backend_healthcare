@@ -23,8 +23,8 @@ let postBookAppointment = (data) => {
                     errMessage: 'Missing parameter'
                 })
             } else {
+                let token = uuidv4();
 
-                
                 let user = await db.Users.findOrCreate({
                     where: { email: data.email },
                     defaults: {
@@ -38,28 +38,12 @@ let postBookAppointment = (data) => {
                     }
                 });
 
-
+                let patientId = user[0].id;
                 if (user && user[0]) {
-
-                    let existAnyDoctor = await db.Bookings.findOne({
-                        where: {
-                            patientId: user[0].id,
-                            date: data.date,
-                            timeType: data.timeType,
-                            statusId: 'S1'
-                        }
-                    });
-
-                    if (existAnyDoctor) {
-                        return resolve({
-                            errCode: 3,
-                            errMessage: 'You already have an appointment at this time!'
-                        });
-                    }
 
                     let existSameDoctor = await db.Bookings.findOne({
                         where: {
-                            patientId: user[0].id,
+                            patientId,
                             doctorId: data.doctorId,
                             date: data.date,
                             timeType: data.timeType,
@@ -74,16 +58,34 @@ let postBookAppointment = (data) => {
                         });
                     }
 
+                    let existAnyDoctor = await db.Bookings.findOne({
+                        where: {
+                            patientId,
+                            date: data.date,
+                            timeType: data.timeType,
+                            statusId: 'S1'
+                        }
+                    });
+
+                    if (existAnyDoctor) {
+                        return resolve({
+                            errCode: 3,
+                            errMessage: 'You already have an appointment at this time!'
+                        });
+                    }
+
+
+
                     await db.Bookings.create({
                         statusId: 'S1',
                         doctorId: data.doctorId,
-                        patientId: user[0].id,
+                        patientId,
                         date: data.date,
                         timeType: data.timeType,
                         token: token
                     });
                 }
-                let token = uuidv4();
+
 
                 await emailService.sendSimpleEmail({
                     receiverEmail: data.email,
@@ -93,7 +95,7 @@ let postBookAppointment = (data) => {
                     language: data.language,
                     redirectLink: buildUrlEmail(data.doctorId, token)
                 });
-                
+
                 resolve({
                     data: user,
                     errCode: 0,
