@@ -26,7 +26,7 @@ let postBookAppointment = (data) => {
 
                 let token = uuidv4();
 
-                await emailService.sendSimpleEmail({
+                emailService.sendSimpleEmail({
                     receiverEmail: data.email,
                     patientName: data.fullName,
                     time: data.timeString,
