@@ -95,7 +95,7 @@ let postVerifyBookAppointment = (data) => {
                     },
                     raw: false,
                 })
-
+console.log("DEBUG APPOINTMENT status verify:", appointment);
 
                 if (appointment) {
                     appointment.statusId = 'S2';
