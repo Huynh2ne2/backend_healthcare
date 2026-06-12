@@ -6,11 +6,18 @@ let postBookAppointment = async (req, res) => {
         return res.status(200).json(infor);
 
     } catch (e) {
-        console.log(e);
-        return res.status(200).json({
+        // console.log(e);
+        // return res.status(200).json({
+        //     errCode: -1,
+        //     errMessage: 'Error from the server'
+        // })
+        console.error("REAL ERROR postBookAppointment:", e);
+        console.error("MESSAGE postBookAppointment:", e.message);
+
+        return res.status(500).json({
             errCode: -1,
-            errMessage: 'Error from the server'
-        })
+            errMessage: e.message
+        });
     }
 }
 
