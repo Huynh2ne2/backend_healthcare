@@ -51,8 +51,42 @@ let postBookAppointment = (data) => {
 
                 if (user && user[0]) {
                     console.log("step 2");
-                    let exist = await db.Bookings.findOne({
+                    // let exist = await db.Bookings.findOne({
+                    //     where: {
+                    //         doctorId: data.doctorId,
+                    //         date: data.date,
+                    //         timeType: data.timeType,
+                    //         statusId: 'S1'
+                    //     }
+                    // });
+
+                    // if (exist) {
+                    //     return resolve({
+                    //         errCode: 2,
+                    //         errMessage: 'This time slot is already booked!'
+                    //     });
+                    // }
+
+
+                    let existAnyDoctor = await db.Bookings.findOne({
                         where: {
+                            patientId: user[0].id,
+                            date: data.date,
+                            timeType: data.timeType,
+                            statusId: 'S1'
+                        }
+                    });
+
+                    if (existAnyDoctor) {
+                        return resolve({
+                            errCode: 3,
+                            errMessage: 'You already have an appointment at this time!'
+                        });
+                    }
+
+                    let existSameDoctor = await db.Bookings.findOne({
+                        where: {
+                            patientId: user[0].id,
                             doctorId: data.doctorId,
                             date: data.date,
                             timeType: data.timeType,
@@ -60,10 +94,10 @@ let postBookAppointment = (data) => {
                         }
                     });
 
-                    if (exist) {
+                    if (existSameDoctor) {
                         return resolve({
                             errCode: 2,
-                            errMessage: 'This time slot is already booked!'
+                            errMessage: 'You already booked this doctor at this time!'
                         });
                     }
 
@@ -75,18 +109,6 @@ let postBookAppointment = (data) => {
                         timeType: data.timeType,
                         token: token
                     });
-                    // await db.Bookings.findOrCreate({
-                    //     where: { patientId: user[0].id },
-                    //     defaults: {
-                    //         statusId: 'S1',
-                    //         doctorId: data.doctorId,
-                    //         patientId: user[0].id,
-                    //         date: data.date,
-                    //         timeType: data.timeType,
-                    //         token: token
-                    //     }
-
-                    // })
                 }
                 console.log("step 3");
                 resolve({
