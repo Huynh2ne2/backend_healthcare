@@ -92,7 +92,7 @@ let postVerifyBookAppointment = (data) => {
                         doctorId: data.doctorId,
                         token: data.token,
                         // statusId: 'S1'
-                        statusId: { [Op.in]: ['S1'] }
+                        // statusId: { [Op.in]: ['S1'] }
                     },
                     raw: false,
                 })
