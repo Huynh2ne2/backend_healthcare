@@ -542,14 +542,16 @@ let sendSimpleEmail = async (dataSend) => {
         //     },
         // });
 
-        await resend.emails.send({
+         const result = await resend.emails.send({
             from: `"Healthcare Team" <${process.env.EMAIL_APP}>`,
             to: dataSend.receiverEmail,
             subject: "Thông tin đặt lịch khám bệnh",
             html: getBodyHTMLEmail(dataSend),
         });
+console.log("SEND EMAIL TO:", dataSend.receiverEmail);
+         console.log("EMAIL SENT RESULT:", result);
 
-        return true;
+        return result;
     } catch (e) {
         console.log("EMAIL ERROR:", e.message);
         throw e;
