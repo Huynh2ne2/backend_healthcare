@@ -1,5 +1,8 @@
-// require('dotenv').config();
+// //package resend
 
+// require('dotenv').config();
+// const { Resend } = require('resend');
+// const resend = new Resend(process.env.EMAIL_APP);
 
 // import nodemailer from 'nodemailer';
 
@@ -48,22 +51,24 @@
 
 // let sendSimpleEmail = async (dataSend) => {
 //     try {
-//         let transporter = nodemailer.createTransport({
-//             service: "gmail",
-//             auth: {
-//                 user: process.env.EMAIL_APP,
-//                 pass: process.env.EMAIL_APP_PASSWORD,
-//             },
-//         });
+//         // let transporter = nodemailer.createTransport({
+//         //     service: "gmail",
+//         //     auth: {
+//         //         user: process.env.EMAIL_APP,
+//         //         pass: process.env.EMAIL_APP_PASSWORD,
+//         //     },
+//         // });
 
-//         let info = await transporter.sendMail({
+//          const result = await resend.emails.send({
 //             from: `"Healthcare Team" <${process.env.EMAIL_APP}>`,
 //             to: dataSend.receiverEmail,
 //             subject: "Thông tin đặt lịch khám bệnh",
 //             html: getBodyHTMLEmail(dataSend),
 //         });
+// console.log("SEND EMAIL TO:", dataSend.receiverEmail);
+//          console.log("EMAIL SENT RESULT:", result);
 
-//         return info;
+//         return result;
 //     } catch (e) {
 //         console.log("EMAIL ERROR:", e.message);
 //         throw e;
@@ -265,7 +270,7 @@
 //         <p>Information on making an appointment </p>
 //         <div><b>Time: ${dataSend.time}</b></div>
 //         <div><b>Doctor: ${dataSend.doctorName}</b></div>
-        
+
 //         <p>If you have confirmed the above registration information is correct
 //         Then click on the link below to confirm completion of the appointment booking procedure
 //         </p>
@@ -286,20 +291,7 @@
 // let sendAttachment = async (dataSend) => {
 //     return new Promise(async (resolve, reject) => {
 //         try {
-//             let transporter = nodemailer.createTransport({
-//                 host: "smtp.gmail.com",
-//                 port: 465,
-//                 secure: true,
-//                 auth: {
-//                     user: process.env.EMAIL_APP,
-//                     pass: process.env.EMAIL_APP_PASSWORD,
-//                 },
-//                 // tls: {
-//                 //     rejectUnauthorized: false,
-//                 // },
-//             });
-
-//             let info = await transporter.sendMail({
+//             await resend.emails.send({
 //                 from: `"Healthcare Team" <${process.env.EMAIL_APP}>`,
 //                 to: dataSend.email,
 //                 subject: "Thông tin đặt lịch khám bệnh",
@@ -460,8 +452,8 @@
 //         result = result = `
 //         <h3>Dear, ${dataSend.patientName}!</h3>
 //         <p>You received this email because you booked an online medical appointment on the booking care website</p>
-        
-       
+
+
 //         <div>
 //         Sincerely thank
 //         </div>
@@ -479,15 +471,15 @@
 // }
 
 
+//package sendgrid
 
-
-//convert package resend
 
 require('dotenv').config();
-const { Resend } = require('resend');
-const resend = new Resend(process.env.EMAIL_APP);
+require("dotenv").config();
+const sgMail = require("@sendgrid/mail");
+const { name } = require('ejs');
 
-import nodemailer from 'nodemailer';
+sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 let myCustomMethod = async (ctx) => {
     let cmd = await ctx.sendCommand(
@@ -503,57 +495,27 @@ let myCustomMethod = async (ctx) => {
     }
 }
 
-// let sendSimpleEmail = async (dataSend) => {
-//     let transporter = nodemailer.createTransport({
-//         host: "smtp.gmail.com",
-//         port: 587,
-//         secure: false,
-//         auth: {
-//             type: 'custom',
-//             method: 'MY-CUSTOM-METHOD',
-//             user: process.env.EMAIL_APP,
-//             pass: process.env.EMAIL_APP_PASSWORD,
-//         },
-//         customAuth: {
-//             'MY-CUSTOM-METHOD': myCustomMethod
-//         },
-//         tls: {
-//             rejectUnauthorized: false,
-//         },
-//     });
-
-//     let info = await transporter.sendMail({
-//         from: `"Healthcare Team" <${process.env.EMAIL_APP}>`,
-//         to: dataSend.receiverEmail,
-//         subject: "Thông tin đặt lịch khám bệnh",
-//         html: getBodyHTMLEmail(dataSend),
-//     });
-
-// }
-
 
 let sendSimpleEmail = async (dataSend) => {
     try {
-        // let transporter = nodemailer.createTransport({
-        //     service: "gmail",
-        //     auth: {
-        //         user: process.env.EMAIL_APP,
-        //         pass: process.env.EMAIL_APP_PASSWORD,
-        //     },
-        // });
 
-         const result = await resend.emails.send({
-            from: `"Healthcare Team" <${process.env.EMAIL_APP}>`,
+        const msg = {
             to: dataSend.receiverEmail,
+            from: {
+                email: process.env.EMAIL_APP,
+                name: "HealthCare Team"
+            },
             subject: "Thông tin đặt lịch khám bệnh",
             html: getBodyHTMLEmail(dataSend),
-        });
-console.log("SEND EMAIL TO:", dataSend.receiverEmail);
-         console.log("EMAIL SENT RESULT:", result);
+        };
+
+        const result = await sgMail.send(msg);
+        console.log("SEND EMAIL TO:", dataSend.receiverEmail);
+        console.log("EMAIL SENT RESULT:", result);
 
         return result;
     } catch (e) {
-        console.log("EMAIL ERROR:", e.message);
+        console.log("EMAIL ERROR:", e.response?.body || e.message);
         throw e;
     }
 };
@@ -772,30 +734,67 @@ This is an automated email. Please do not reply.
 }
 
 let sendAttachment = async (dataSend) => {
-    return new Promise(async (resolve, reject) => {
-        try {
-            await resend.emails.send({
-                from: `"Healthcare Team" <${process.env.EMAIL_APP}>`,
-                to: dataSend.email,
-                subject: "Thông tin đặt lịch khám bệnh",
-                html: getBodyHTMLEmailRemedy(dataSend),
-                attachments: [
-                    {
+    try {
+        const msg = {
+            to: dataSend.email,
+            from: {
+                email: process.env.EMAIL_APP,
+                name: "Healthcare Team"
+            },
+            subject: "Thông tin đặt lịch khám bệnh",
+            html: getBodyHTMLEmailRemedy(dataSend),
+            attachments: [
+                {
+                    filename: dataSend.fileName,
+                    content: dataSend.imgBase64.split("base64,")[1],
+                    encoding: 'base64'
+                }
+            ]
+        };
 
-                        filename: dataSend.fileName,
-                        content: dataSend.imgBase64.split("base64,")[1],
-                        encoding: 'base64'
-                    },
-                ],
-            });
-            resolve()
+        await sgMail.send(msg);
 
-        } catch (e) {
-            reject(e)
-        }
-    })
+        console.log("ATTACHMENT EMAIL SENT");
+    } catch (e) {
+        console.log("ATTACHMENT EMAIL ERROR:", e.response?.body || e.message);
+        throw e;
+    }
+};
 
-}
+// let sendAttachment = async (dataSend) => {
+
+//     try {
+//         const msg = {
+//             to: dataSend.email,
+//             from: {
+//                 email: process.env.EMAIL_APP
+//             },
+//             name: "HealthCare Team"
+//         },
+//             subject: "Thông tin đặt lịch khám bệnh",
+//             html: getBodyHTMLEmailRemedy(dataSend),
+//                 attachments: [
+//                     {
+
+//                         filename: dataSend.fileName,
+//                         content: dataSend.imgBase64.split("base64,")[1],
+//                         encoding: 'base64'
+//                     }
+//                 ]
+
+//     };
+//     await resend.emails.send({
+//         from: `"Healthcare Team" <${process.env.EMAIL_APP}>`,
+//         to: dataSend.email,
+
+//     });
+//     resolve()
+
+// } catch (e) {
+//     reject(e)
+// }
+
+// };
 
 
 let getBodyHTMLEmailRemedy = (dataSend) => {
