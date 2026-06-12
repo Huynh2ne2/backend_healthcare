@@ -24,17 +24,7 @@ let postBookAppointment = (data) => {
                 })
             } else {
 
-                let token = uuidv4();
-
-                await emailService.sendSimpleEmail({
-                    receiverEmail: data.email,
-                    patientName: data.fullName,
-                    time: data.timeString,
-                    doctorName: data.doctorName,
-                    language: data.language,
-                    redirectLink: buildUrlEmail(data.doctorId, token)
-                })
-                console.log("step 1");
+                
                 let user = await db.Users.findOrCreate({
                     where: { email: data.email },
                     defaults: {
@@ -50,23 +40,6 @@ let postBookAppointment = (data) => {
 
 
                 if (user && user[0]) {
-                    console.log("step 2");
-                    // let exist = await db.Bookings.findOne({
-                    //     where: {
-                    //         doctorId: data.doctorId,
-                    //         date: data.date,
-                    //         timeType: data.timeType,
-                    //         statusId: 'S1'
-                    //     }
-                    // });
-
-                    // if (exist) {
-                    //     return resolve({
-                    //         errCode: 2,
-                    //         errMessage: 'This time slot is already booked!'
-                    //     });
-                    // }
-
 
                     let existAnyDoctor = await db.Bookings.findOne({
                         where: {
@@ -110,7 +83,17 @@ let postBookAppointment = (data) => {
                         token: token
                     });
                 }
-                console.log("step 3");
+                let token = uuidv4();
+
+                await emailService.sendSimpleEmail({
+                    receiverEmail: data.email,
+                    patientName: data.fullName,
+                    time: data.timeString,
+                    doctorName: data.doctorName,
+                    language: data.language,
+                    redirectLink: buildUrlEmail(data.doctorId, token)
+                });
+                
                 resolve({
                     data: user,
                     errCode: 0,
