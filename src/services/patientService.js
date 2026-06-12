@@ -87,6 +87,12 @@ let postVerifyBookAppointment = (data) => {
                     errMessage: 'Missing parameter'
                 })
             } else {
+                console.log("=== BEFORE QUERY ===");
+                console.log({
+                    doctorId: Number(data.doctorId),
+                    token: data.token?.trim()
+                });
+                console.log("===================");
                 let appointment = await db.Bookings.findOne({
                     where: {
                         doctorId: data.doctorId,
@@ -96,7 +102,7 @@ let postVerifyBookAppointment = (data) => {
                     },
                     raw: false,
                 })
-console.log("DEBUG APPOINTMENT status verify:", appointment);
+                console.log("DEBUG APPOINTMENT status verify:", appointment);
 
                 if (appointment) {
                     appointment.statusId = 'S2';
