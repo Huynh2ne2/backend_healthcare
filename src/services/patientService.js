@@ -51,18 +51,42 @@ let postBookAppointment = (data) => {
 
                 if (user && user[0]) {
                     console.log("step 2");
-                    await db.Bookings.findOrCreate({
-                        where: { patientId: user[0].id },
-                        defaults: {
-                            statusId: 'S1',
+                    let exist = await db.Bookings.findOne({
+                        where: {
                             doctorId: data.doctorId,
-                            patientId: user[0].id,
                             date: data.date,
                             timeType: data.timeType,
-                            token: token
+                            statusId: 'S1'
                         }
+                    });
 
-                    })
+                    if (exist) {
+                        return resolve({
+                            errCode: 2,
+                            errMessage: 'This time slot is already booked!'
+                        });
+                    }
+
+                    await db.Bookings.create({
+                        statusId: 'S1',
+                        doctorId: data.doctorId,
+                        patientId: user[0].id,
+                        date: data.date,
+                        timeType: data.timeType,
+                        token: token
+                    });
+                    // await db.Bookings.findOrCreate({
+                    //     where: { patientId: user[0].id },
+                    //     defaults: {
+                    //         statusId: 'S1',
+                    //         doctorId: data.doctorId,
+                    //         patientId: user[0].id,
+                    //         date: data.date,
+                    //         timeType: data.timeType,
+                    //         token: token
+                    //     }
+
+                    // })
                 }
                 console.log("step 3");
                 resolve({
